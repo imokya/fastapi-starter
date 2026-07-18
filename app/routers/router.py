@@ -1,5 +1,6 @@
 from fastapi.routing import APIRouter
-from app.routers import status_router
+
+from app.routers import status_router, user_router, session_router
 
 
 def create_api_routes() -> APIRouter:
@@ -9,7 +10,9 @@ def create_api_routes() -> APIRouter:
   api_router = APIRouter()
 
   # 将各个模块的路由注册到APIRouter实例
-  api_router.include_router(status_router.router)
+  api_router.include_router(user_router)
+  api_router.include_router(status_router)
+  api_router.include_router(session_router)
 
   return api_router
 

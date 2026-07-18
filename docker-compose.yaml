@@ -1,0 +1,30 @@
+services:
+  finbot-db:
+    image: postgres:15-alpine
+    restart: always
+    container_name: finbot-db
+    environment:
+      - POSTGRES_USER=finbot
+      - POSTGRES_PASSWORD=finbot
+      - POSTGRES_DB=finbot
+    ports:
+      - 5432:5432
+    volumes:
+      - ./docker/volumes/db/data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U finbot -d finbot"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
+
+  finbot-redis:
+    image: redis:6-alpine
+    restart: always
+    container_name: finbot-redis
+    ports:
+      - 6379:6379
+    volumes:
+      - ./docker/volumes/redis/data:/data
+    command: redis-server --requirepass finbot
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping"]

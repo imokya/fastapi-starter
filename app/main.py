@@ -5,10 +5,9 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
 from app.logging import setup_logging
-from app.routers import router
-
+from app.routers.router import router
+from app.storages import get_redis, get_postgres, get_cos
 from app.errors import register_exception_handlers
-
 
 # 加载配置信息
 settings = get_settings()
@@ -30,9 +29,21 @@ openapi_tags = [
 async def lifespan(app: FastAPI):
   """创建FastAPI应用程序生命周期上下文管理"""
   logger.info("应用启动中...")
+
+  # 初始化redis客户端
+  await get_redis().init()
+  # 初始化postgres连接
+  await get_postgres().init()
+  # 初始化腾讯云COS客户端
+  await get_cos().init()
+
   try:
     yield
   finally:
+    # 关闭redis客户端
+    await get_redis().shutdown()
+    await get_postgres().shutdown()
+    await get_cos().shutdown()
     logger.info("应用关闭中...")
 
 # 创建FastAPI应用实例

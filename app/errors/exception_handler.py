@@ -1,15 +1,35 @@
 import logging
 from app.utils import Response
+from app.utils.response import HttpCode
 from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException
 from .exceptions import AppException
 
 logger = logging.getLogger(__name__)
 
+FIELD_LABELS = {
+  "username": "用户名",
+  "password": "密码",
+}
+
 
 def register_exception_handlers(app: FastAPI):
   """处理项目中所有异常并进行统一处理，涵盖：自定义业务异常，HTTP异常，通用异常"""
+
+  @app.exception_handler(RequestValidationError)
+  async def request_validation_handler(request: Request, e: RequestValidationError):
+    """处理 FastAPI/Pydantic 请求参数验证错误"""
+    print('==========', )
+    return JSONResponse(
+      status_code=HttpCode.VALIDATION_ERROR.value,
+      content=Response(
+        code=HttpCode.VALIDATION_ERROR,
+        msg=e.errors()[0].get('msg'),
+        data={},
+      ).model_dump(),
+    )
 
   @app.exception_handler(AppException)
   async def app_exception_handler(request: Request, e: AppException):

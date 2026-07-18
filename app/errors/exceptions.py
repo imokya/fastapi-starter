@@ -55,6 +55,17 @@ class ValidationError(AppException):
     )
 
 
+class UnauthorizedError(AppException):
+  """未授权错误"""
+
+  def __init__(self, msg: str = '未授权，请重新登录'):
+    super().__init__(
+      status_code=HttpCode.UNAUTHORIZED.value,
+      code=HttpCode.UNAUTHORIZED.value,
+      msg=msg
+    )
+
+
 class TooManyRequestsError(AppException):
   """请求过多错误"""
 

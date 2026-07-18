@@ -24,11 +24,15 @@ class Response(BaseModel, Generic[T]):
   data: Optional[T] = Field(default_factory=dict)  # 响应数据默认为空字典
 
   @staticmethod
-  def success(data: Optional[T] = None, msg: str = 'success') -> 'Response[T]':
-    """成功消息，传递data+msg，code固定为200"""
-    return Response(code=HttpCode.SUCCESS, msg=msg, data=data if data is not None else {})
+  def success(msg: str = 'success', data: Optional[T] = None) -> 'Response[T]':
+    """成功消息，传递msg+data，code固定为200"""
+    if data is None:
+      return Response(code=HttpCode.SUCCESS, msg=msg)
+    return Response(code=HttpCode.SUCCESS, msg=msg, data=data)
 
   @staticmethod
   def fail(code: HttpCode, msg: str, data: Optional[T] = None) -> 'Response[T]':
     """失败消息，传递code+msg+data"""
-    return Response(code=code, msg=msg, data=data if data is not None else {})
+    if data is None:
+      return Response(code=code, msg=msg)
+    return Response(code=code, msg=msg, data=data)
